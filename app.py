@@ -6,6 +6,10 @@ from urllib.parse import parse_qs, urlparse
 import os
 import requests
 import io
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
 
 dim_detail = {
     'Dimensi 1': 'DATA & INFRASTRUKTUR',
@@ -133,8 +137,11 @@ st.markdown("""
 def load_data():
     """Memuat data dari Google Sheets dengan fallback ke file CSV lokal - selalu update real-time"""
     try:
-        # Google Sheets URL
-        sheet_id = "1BQszEzIYEShj3_a44HrWT9SAgR8l0GzBBid9We4bM40"
+        # Google Sheets URL from environment variable
+        sheet_id = os.getenv('GOOGLE_SHEETS_ID')
+        
+        if not sheet_id:
+            raise Exception("GOOGLE_SHEETS_ID tidak ditemukan di file .env")
         
         # Convert to CSV export URL
         csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"

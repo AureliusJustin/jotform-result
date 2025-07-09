@@ -19,6 +19,14 @@ A Streamlit web application that displays hospital survey results with interacti
 pip install -r requirements.txt
 ```
 
+2. Set up environment variables:
+   - Copy `.env.example` to `.env`:
+   ```bash
+   cp .env.example .env
+   ```
+   - Edit `.env` and replace `your_google_sheets_id_here` with your actual Google Sheets ID
+   - The Google Sheets ID can be found in the URL: `https://docs.google.com/spreadsheets/d/[SHEETS_ID]/edit`
+
 ## Running the Application
 
 1. Run the Streamlit application:
@@ -31,9 +39,20 @@ streamlit run app.py
 ## Data Source
 
 The application fetches data directly from Google Sheets:
-- **Sheet URL**: https://docs.google.com/spreadsheets/d/1fneHP0zuCz2OHXNQqfZCM2aafjxBcNC2FbwYKF00SEw/edit
+- **Configuration**: Google Sheets ID is stored in `.env` file for security
 - **Auto-refresh**: Data is cached for 5 minutes and refreshed automatically
 - **Manual refresh**: Use the "🔄 Refresh Data" button to force refresh
+
+### Setting up Google Sheets Access
+
+1. Make sure your Google Sheets is publicly accessible:
+   - Open your Google Sheets
+   - Click "Share" → "Anyone with the link can view"
+   - Or: File → Publish to the web → Publish
+
+2. Get your Google Sheets ID:
+   - From the URL: `https://docs.google.com/spreadsheets/d/[SHEETS_ID]/edit`
+   - Copy the SHEETS_ID part and add it to your `.env` file
 
 ## Usage
 
@@ -84,4 +103,11 @@ You can customize the application by modifying:
 - Colors and styling in the CSS section
 - Chart appearance in the `create_spider_chart()` function
 - Data display format in the `display_submission_details()` function
-- Google Sheets URL in the `load_data()` function
+- Google Sheets ID in the `.env` file
+
+## Environment Variables
+
+The application uses the following environment variables:
+- `GOOGLE_SHEETS_ID`: The ID of your Google Sheets document
+
+Make sure to set these in your `.env` file before running the application.
