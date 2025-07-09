@@ -228,7 +228,13 @@ def load_data():
 def create_spider_chart(dimensions_data, submission_id):
     """Membuat spider chart untuk 5 dimensi"""
     
-    categories = ['Dimensi 1', 'Dimensi 2', 'Dimensi 3', 'Dimensi 4', 'Dimensi 5']
+    categories = [
+        'DATA & INFRASTRUKTUR',
+        'LEADERSHIP & STRATEGI', 
+        'SDM & KOMPETENSI',
+        'IMPLEMENTASI USE CASE AI',
+        'TATA KELOLA & ETIKA'
+    ]
     values = [
         dimensions_data['Dimensi 1'],
         dimensions_data['Dimensi 2'], 
@@ -262,22 +268,24 @@ def create_spider_chart(dimensions_data, submission_id):
             radialaxis=dict(
                 visible=True,
                 range=[0, max_val + 2],
-                tickfont=dict(size=12),
+                tickfont=dict(size=10),
                 gridcolor='lightgray'
             ),
             angularaxis=dict(
-                tickfont=dict(size=14, color='#1f4e79')
-            )
+                tickfont=dict(size=11, color='#1f4e79'),
+                direction='clockwise',            )
         ),
-        showlegend=True,
+        showlegend=False,
         title=dict(
             text=f"Analisis Dimensi",
             x=0.5,
-            font=dict(size=18, color='#1f4e79')
+            font=dict(size=16, color='#1f4e79')
         ),
-        font=dict(size=12),
+        font=dict(size=10),
         paper_bgcolor='white',
-        plot_bgcolor='white'
+        plot_bgcolor='white',
+        autosize=True,
+        margin=dict(l=100, r=100, t=80, b=80),
     )
     
     return fig
@@ -663,41 +671,38 @@ def display_all_submissions_overview(df):
     # Display dimensions analysis
     st.markdown("### Analisis Dimensi Rata-rata")
     
-    col1, col2 = st.columns([2, 1])
+    # Create spider chart for averages on top
+    spider_fig = create_spider_chart(avg_submission, "Rata-rata")
+    spider_fig.update_layout(
+        title="Rata-rata Semua Submission"
+    )
+    st.plotly_chart(spider_fig, use_container_width=True)
     
-    with col1:
-        st.markdown("#### Skor Rata-rata per Dimensi")
-        for dim in ['Dimensi 1', 'Dimensi 2', 'Dimensi 3', 'Dimensi 4', 'Dimensi 5']:
-            avg_value = dimension_averages[dim]
-            min_value = df[dim].min()
-            max_value = df[dim].max()
-            std_value = df[dim].std()
-            
-            # Create a progress bar visualization
-            progress = avg_value / 15
-            
-            # Create columns for metric and statistics
-            metric_col, stats_col = st.columns([1, 1])
-            
-            with metric_col:
-                st.metric(
-                    label=dim.upper() + f": {dim_detail[dim]}",
-                    value=f"{avg_value:.1f}/15",
-                    help=f"Rata-rata: {avg_value:.1f} | Min: {min_value} | Max: {max_value} | Std: {std_value:.1f}"
-                )
-                st.progress(progress)
-            
-            # with stats_col:
-            #     st.write(f"**Range:** {min_value} - {max_value}")
-            #     st.write(f"**Std Dev:** {std_value:.1f}")
-    
-    with col2:
-        # Create spider chart for averages
-        spider_fig = create_spider_chart(avg_submission, "Rata-rata")
-        spider_fig.update_layout(
-            title="Rata-rata Semua Submission"
-        )
-        st.plotly_chart(spider_fig, use_container_width=True)
+    # Dimension scores below
+    st.markdown("#### Skor Rata-rata per Dimensi")
+    for dim in ['Dimensi 1', 'Dimensi 2', 'Dimensi 3', 'Dimensi 4', 'Dimensi 5']:
+        avg_value = dimension_averages[dim]
+        min_value = df[dim].min()
+        max_value = df[dim].max()
+        std_value = df[dim].std()
+        
+        # Create a progress bar visualization
+        progress = avg_value / 15
+        
+        # Create columns for metric and statistics
+        metric_col, stats_col = st.columns([1, 1])
+        
+        with metric_col:
+            st.metric(
+                label=dim.upper() + f": {dim_detail[dim]}",
+                value=f"{avg_value:.1f}/15",
+                help=f"Rata-rata: {avg_value:.1f} | Min: {min_value} | Max: {max_value} | Std: {std_value:.1f}"
+            )
+            st.progress(progress)
+        
+        # with stats_col:
+        #     st.write(f"**Range:** {min_value} - {max_value}")
+        #     st.write(f"**Std Dev:** {std_value:.1f}")
     
     # AI Maturity Analysis for averages
     # st.markdown("### 🏆 Interpretasi Rata-rata AI Maturity")
@@ -784,20 +789,49 @@ def main():
         avg_submission, avg_scores, avg_maturity = display_all_submissions_overview(df)
         
         # Add link to access individual submissions
+        # st.markdown("---")
+        # st.markdown("### 🔗 Akses Hasil Individual")
+        # st.info("💡 Untuk melihat hasil individual, gunakan URL: `?submission_id=<ID>` di akhir URL ini")
+        
+        # # Show available submission IDs
+        # with st.expander("� Daftar Submission ID yang tersedia"):
+        #     for i, sub_id in enumerate(submission_ids):
+        #         col1, col2 = st.columns([1, 3])
+        #         with col1:
+        #             st.code(sub_id)
+        #         with col2:
+        #             # Get responder name for this submission
+        #             responder_name = df[df['Submission ID'].astype(str) == sub_id]['Nama Responden'].iloc[0]
+        #             st.write(f"**{responder_name}**")
+        
+        # Add dropdown to access individual submissions
         st.markdown("---")
         st.markdown("### 🔗 Akses Hasil Individual")
-        st.info("💡 Untuk melihat hasil individual, gunakan URL: `?submission_id=<ID>` di akhir URL ini")
         
-        # Show available submission IDs
-        with st.expander("� Daftar Submission ID yang tersedia"):
-            for i, sub_id in enumerate(submission_ids):
-                col1, col2 = st.columns([1, 3])
-                with col1:
-                    st.code(sub_id)
-                with col2:
-                    # Get responder name for this submission
-                    responder_name = df[df['Submission ID'].astype(str) == sub_id]['Nama Responden'].iloc[0]
-                    st.write(f"**{responder_name}**")
+        # Create options for dropdown with submission ID and responder name
+        submission_options = ["Pilih submission individual"]
+        submission_mapping = {}
+        
+        for sub_id in submission_ids:
+            responder_name = df[df['Submission ID'].astype(str) == sub_id]['Nama Responden'].iloc[0]
+            option_text = f"{responder_name} (ID: {sub_id})"
+            submission_options.append(option_text)
+            submission_mapping[option_text] = sub_id
+        
+        # Dropdown selection
+        selected_option = st.selectbox(
+            "Pilih submission yang ingin dilihat:",
+            options=submission_options,
+            key="submission_selector"
+        )
+        
+        # Navigate to selected submission
+        if selected_option != "Pilih submission individual":
+            selected_submission_id = submission_mapping[selected_option]
+            query_params = st.experimental_get_query_params()
+            query_params['submission_id'] = selected_submission_id
+            st.experimental_set_query_params(**query_params)
+            st.rerun()
     
     # If query params exist, show only individual submission
     else:
@@ -822,9 +856,14 @@ def main():
         st.markdown("---")
         st.markdown('<div class="submission-header">Analisis Dimensi</div>', unsafe_allow_html=True)
         
-        col1, col2 = st.columns([2, 1])
+        # Spider chart on top
+        spider_fig = create_spider_chart(submission_data, submission_id_from_url)
+        st.plotly_chart(spider_fig, use_container_width=True)
         
-        with col1:
+        metric_col, stats_col = st.columns([1, 1])
+        
+        with metric_col:
+        # Dimension scores below
             st.markdown("### Skor per Dimensi")
             for dim in ['Dimensi 1', 'Dimensi 2', 'Dimensi 3', 'Dimensi 4', 'Dimensi 5']:
                 value = submission_data[dim]
@@ -836,20 +875,16 @@ def main():
                     help=f"Skor: {value}"
                 )
                 st.progress(progress)
-                
-        with col2:
-            spider_fig = create_spider_chart(submission_data, submission_id_from_url)
-            st.plotly_chart(spider_fig, use_container_width=True)
         
         # AI Maturity Analysis
         display_ai_maturity_analysis(submission_data)
         
         # Raw data section (expandable)
-        with st.expander("🔍 Lihat Data Survey Lengkap"):
-            # Filter out dimension columns for better readability
-            display_columns = [col for col in df.columns if not col.startswith('Dimensi') and col != 'Submission ID']
-            display_data = submission_data[display_columns].to_frame().T
-            st.dataframe(display_data, use_container_width=True)
+        # with st.expander("🔍 Lihat Data Survey Lengkap"):
+        #     # Filter out dimension columns for better readability
+        #     display_columns = [col for col in df.columns if not col.startswith('Dimensi') and col != 'Submission ID']
+        #     display_data = submission_data[display_columns].to_frame().T
+        #     st.dataframe(display_data, use_container_width=True)
 
 if __name__ == "__main__":
     main()
