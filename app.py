@@ -253,7 +253,9 @@ def create_spider_chart(dimensions_data, submission_id):
     ))
     
     # Find max value for better scaling
-    max_val = max(dimensions_data[['Dimensi 1', 'Dimensi 2', 'Dimensi 3', 'Dimensi 4', 'Dimensi 5']].values)
+    max_val = max([dimensions_data['Dimensi 1'], dimensions_data['Dimensi 2'], 
+                   dimensions_data['Dimensi 3'], dimensions_data['Dimensi 4'], 
+                   dimensions_data['Dimensi 5']])
     
     fig.update_layout(
         polar=dict(
@@ -488,7 +490,7 @@ def display_ai_maturity_analysis(submission_data):
     
     with col1:
         st.metric(
-            label="SKOR MENTAH TOTAL",
+            label="TOTAL SKOR MURNI",
             value=f"{scores['raw_total']}/75",
             help="Total dari semua jawaban (5 dimensi × 15 poin maksimal)"
         )
@@ -592,6 +594,162 @@ def display_ai_maturity_analysis(submission_data):
     
     return scores, maturity_level
 
+def calculate_all_submissions_average(df):
+    """Menghitung rata-rata dari semua submission"""
+    # Calculate averages for each dimension
+    dimension_averages = {}
+    for i in range(1, 6):
+        dim_key = f'Dimensi {i}'
+        dimension_averages[dim_key] = df[dim_key].mean()
+    
+    # Create a pseudo submission data with averages
+    avg_submission = {
+        'Dimensi 1': dimension_averages['Dimensi 1'],
+        'Dimensi 2': dimension_averages['Dimensi 2'],
+        'Dimensi 3': dimension_averages['Dimensi 3'],
+        'Dimensi 4': dimension_averages['Dimensi 4'],
+        'Dimensi 5': dimension_averages['Dimensi 5'],
+        'Nama Responden': 'RATA-RATA SEMUA SUBMISSION',
+        'Submission ID': 'AVG',
+        'total_submissions': len(df)
+    }
+    
+    return avg_submission, dimension_averages
+
+def display_all_submissions_overview(df):
+    """Menampilkan overview semua submission dengan rata-rata"""
+    
+    avg_submission, dimension_averages = calculate_all_submissions_average(df)
+    
+    st.markdown("---")
+    st.markdown('<div class="submission-header">Overview Semua Submission</div>', unsafe_allow_html=True)
+    
+    # Basic statistics
+    col1, col2, col3, col4 = st.columns(4)
+    
+    with col1:
+        st.metric(
+            label="Total Submission",
+            value=len(df),
+            help="Jumlah total submission yang terkumpul"
+        )
+    
+    with col2:
+        overall_avg = sum([avg_submission[f'Dimensi {i}'] for i in range(1, 6)]) / 5
+        st.metric(
+            label="Rata-rata Skor",
+            value=f"{overall_avg:.1f}/15",
+            help="Rata-rata skor dari semua dimensi"
+        )
+    
+    with col3:
+        # Calculate average AI maturity level
+        avg_scores = calculate_ai_maturity_score(avg_submission)
+        avg_maturity = get_ai_maturity_level(avg_scores['weighted_total'])
+        st.metric(
+            label="Level Rata-rata",
+            value=f"Level {avg_maturity['level']}",
+            help=f"{avg_maturity['name']} - {avg_maturity['description']}"
+        )
+    
+    with col4:
+        percentage = (avg_scores['weighted_total'] / 15) * 100
+        st.metric(
+            label="Persentase Skor Rata-rata",
+            value=f"{percentage:.1f}%",
+            help="Persentase pencapaian rata-rata dari skor maksimal"
+        )
+    
+    # Display dimensions analysis
+    st.markdown("### Analisis Dimensi Rata-rata")
+    
+    col1, col2 = st.columns([2, 1])
+    
+    with col1:
+        st.markdown("#### Skor Rata-rata per Dimensi")
+        for dim in ['Dimensi 1', 'Dimensi 2', 'Dimensi 3', 'Dimensi 4', 'Dimensi 5']:
+            avg_value = dimension_averages[dim]
+            min_value = df[dim].min()
+            max_value = df[dim].max()
+            std_value = df[dim].std()
+            
+            # Create a progress bar visualization
+            progress = avg_value / 15
+            
+            # Create columns for metric and statistics
+            metric_col, stats_col = st.columns([1, 1])
+            
+            with metric_col:
+                st.metric(
+                    label=dim.upper() + f": {dim_detail[dim]}",
+                    value=f"{avg_value:.1f}/15",
+                    help=f"Rata-rata: {avg_value:.1f} | Min: {min_value} | Max: {max_value} | Std: {std_value:.1f}"
+                )
+                st.progress(progress)
+            
+            # with stats_col:
+            #     st.write(f"**Range:** {min_value} - {max_value}")
+            #     st.write(f"**Std Dev:** {std_value:.1f}")
+    
+    with col2:
+        # Create spider chart for averages
+        spider_fig = create_spider_chart(avg_submission, "Rata-rata")
+        spider_fig.update_layout(
+            title="Rata-rata Semua Submission"
+        )
+        st.plotly_chart(spider_fig, use_container_width=True)
+    
+    # AI Maturity Analysis for averages
+    # st.markdown("### 🏆 Interpretasi Rata-rata AI Maturity")
+    
+    # # Display average level with styling
+    # st.markdown(f"""
+    # <div style="
+    #     background: linear-gradient(90deg, {avg_maturity['color']}22, {avg_maturity['color']}44);
+    #     border-left: 5px solid {avg_maturity['color']};
+    #     padding: 1rem;
+    #     border-radius: 8px;
+    #     margin: 1rem 0;
+    # ">
+    #     <h4 style="color: {avg_maturity['color']}; margin: 0;">
+    #         🎯 Level AI Maturity Rata-rata: 
+    #     </h4>
+    #     <h3 style="color: {avg_maturity['color']}; margin: 0;">
+    #         Level {avg_maturity['level']} - {avg_maturity['name']}
+    #     </h3>
+    #     <p style="margin: 0.5rem 0; font-size: 1.1rem;">
+    #         {avg_maturity['description']}
+    #     </p>
+    #     <p style="margin: 0.5rem 0; font-style: italic;">
+    #         Berdasarkan rata-rata dari {len(df)} submission
+    #     </p>
+    # </div>
+    # """, unsafe_allow_html=True)
+    
+    # Distribution of submissions by level
+    st.markdown("### Jumlah Submission per Level")
+    
+    # Calculate level for each submission
+    level_distribution = {}
+    for idx, row in df.iterrows():
+        scores = calculate_ai_maturity_score(row)
+        maturity = get_ai_maturity_level(scores['weighted_total'])
+        level_name = f"Level {maturity['level']} - {maturity['name']}"
+        level_distribution[level_name] = level_distribution.get(level_name, 0) + 1
+    
+    # Display distribution
+    dist_cols = st.columns(5)
+    for i, (level_name, count) in enumerate(level_distribution.items()):
+        with dist_cols[i % 5]:
+            percentage = (count / len(df)) * 100
+            st.metric(
+                label=level_name,
+                value=f"{count}",
+                # delta=f"{percentage:.1f}%"
+            )
+    
+    return avg_submission, avg_scores, avg_maturity
+
 def get_submission_id_from_url():
     """Mengambil submission ID dari parameter URL"""
     try:
@@ -614,6 +772,9 @@ def main():
     # Main header
     st.markdown('<div class="main-header">Hasil Survei AI Maturity Assesment Rumah Sakit</div>', unsafe_allow_html=True)
     
+    # Display all submissions overview at the top
+    avg_submission, avg_scores, avg_maturity = display_all_submissions_overview(df)
+    
     # Check if submission_id is provided in URL
     submission_id_from_url = get_submission_id_from_url()
     
@@ -628,7 +789,9 @@ def main():
             st.error(f"❌ Submission ID '{submission_id_from_url}' tidak ditemukan!")
         
         # Create a selection interface at the top
-        st.markdown("### 🔍 Pilih Submission")
+        st.markdown("---")
+        st.markdown("## 🔍 Detail Submission Anda")
+        st.markdown("### Pilih Submission")
         selected_submission = st.selectbox(
             "Pilih Submission ID:",
             options=submission_ids,
