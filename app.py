@@ -3,13 +3,8 @@ import pandas as pd
 import plotly.graph_objects as go
 import numpy as np
 from urllib.parse import parse_qs, urlparse
-import os
 import requests
 import io
-from dotenv import load_dotenv
-
-# Load environment variables
-load_dotenv()
 
 dim_detail = {
     'Dimensi 1': 'DATA & INFRASTRUKTUR',
@@ -137,11 +132,11 @@ st.markdown("""
 def load_data():
     """Memuat data dari Google Sheets dengan fallback ke file CSV lokal - selalu update real-time"""
     try:
-        # Google Sheets URL from environment variable
-        sheet_id = os.getenv('GOOGLE_SHEETS_ID')
-        
-        if not sheet_id:
-            raise Exception("GOOGLE_SHEETS_ID tidak ditemukan di file .env")
+        # Google Sheets URL from Streamlit secrets
+        try:
+            sheet_id = st.secrets["GOOGLE_SHEETS_ID"]
+        except KeyError:
+            raise Exception("GOOGLE_SHEETS_ID tidak ditemukan di Streamlit secrets")
         
         # Convert to CSV export URL
         csv_url = f"https://docs.google.com/spreadsheets/d/{sheet_id}/export?format=csv"

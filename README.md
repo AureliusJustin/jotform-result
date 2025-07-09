@@ -19,12 +19,15 @@ A Streamlit web application that displays hospital survey results with interacti
 pip install -r requirements.txt
 ```
 
-2. Set up environment variables:
-   - Copy `.env.example` to `.env`:
+2. Set up configuration:
+   - Create `.streamlit/secrets.toml` file:
    ```bash
-   cp .env.example .env
+   mkdir -p .streamlit
    ```
-   - Edit `.env` and replace `your_google_sheets_id_here` with your actual Google Sheets ID
+   - Edit `.streamlit/secrets.toml` and add your Google Sheets ID:
+   ```toml
+   GOOGLE_SHEETS_ID = "your_google_sheets_id_here"
+   ```
    - The Google Sheets ID can be found in the URL: `https://docs.google.com/spreadsheets/d/[SHEETS_ID]/edit`
 
 ## Running the Application
@@ -39,7 +42,7 @@ streamlit run app.py
 ## Data Source
 
 The application fetches data directly from Google Sheets:
-- **Configuration**: Google Sheets ID is stored in `.env` file for security
+- **Configuration**: Google Sheets ID is stored in `.streamlit/secrets.toml` file for security
 - **Auto-refresh**: Data is cached for 5 minutes and refreshed automatically
 - **Manual refresh**: Use the "🔄 Refresh Data" button to force refresh
 
@@ -74,6 +77,26 @@ Replace `6278427714402759740` with any valid Submission ID from your data.
 - **Raw Data View**: Expandable section to view all survey responses
 - **Real-time Updates**: Data is automatically refreshed from Google Sheets
 
+## Deployment on Streamlit Cloud
+
+To deploy this application on Streamlit Cloud:
+
+1. **Push your code to GitHub** (without the `.streamlit/secrets.toml` file)
+
+2. **Deploy on Streamlit Cloud**:
+   - Go to [share.streamlit.io](https://share.streamlit.io)
+   - Connect your GitHub repository
+   - Select the repository and branch
+
+3. **Configure secrets in Streamlit Cloud**:
+   - In your Streamlit Cloud app dashboard, go to "Settings" → "Secrets"
+   - Add your configuration in TOML format:
+   ```toml
+   GOOGLE_SHEETS_ID = "your_actual_google_sheets_id_here"
+   ```
+
+4. **Deploy**: The app will automatically deploy with the new configuration
+
 ## Data Structure
 
 The Google Sheets should contain the following key columns:
@@ -103,11 +126,11 @@ You can customize the application by modifying:
 - Colors and styling in the CSS section
 - Chart appearance in the `create_spider_chart()` function
 - Data display format in the `display_submission_details()` function
-- Google Sheets ID in the `.env` file
+- Google Sheets ID in the `.streamlit/secrets.toml` file
 
-## Environment Variables
+## Configuration
 
-The application uses the following environment variables:
+The application uses Streamlit secrets for configuration:
 - `GOOGLE_SHEETS_ID`: The ID of your Google Sheets document
 
 Make sure to set these in your `.env` file before running the application.
