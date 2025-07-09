@@ -8,8 +8,8 @@ import io
 
 dim_detail = {
     'Dimensi 1': 'DATA & INFRASTRUKTUR',
-    'Dimensi 2': 'SDM & KOMPETENSI',
-    'Dimensi 3': 'LEADERSHIP & STRATEGI',
+    'Dimensi 2': 'LEADERSHIP & STRATEGI',
+    'Dimensi 3': 'SDM & KOMPETENSI',
     'Dimensi 4': 'IMPLEMENTASI USE CASE AI',
     'Dimensi 5': 'TATA KELOLA & ETIKA'
 }
@@ -294,12 +294,12 @@ def display_submission_details(submission_data):
         st.markdown("**👤 Informasi Responden**")
         st.write(f"**Nama:** {submission_data['Nama Responden']}")
         st.write(f"**Jabatan:** {submission_data['Jabatan']}")
-        st.markdown('</div>', unsafe_allow_html=True)
+        # st.markdown('</div>', unsafe_allow_html=True)
         
-        st.markdown("**🏥 Informasi Rumah Sakit**")
-        st.write(f"**Nama RS:** {submission_data['Nama Rumah Sakit']}")
-        st.write(f"**Lokasi:** {submission_data['Lokasi Rumah Sakit']}")
-        st.write(f"**Jumlah Tempat Tidur:** {submission_data['Jumlah Tempat Tidur']}")
+        # st.markdown("**🏥 Informasi Rumah Sakit**")
+        st.write(f"**Nama Rumah Sakit:** {submission_data['Nama Rumah Sakit']}")
+        # st.write(f"**Lokasi:** {submission_data['Lokasi Rumah Sakit']}")
+        # st.write(f"**Jumlah Tempat Tidur:** {submission_data['Jumlah Tempat Tidur']}")
         st.markdown('</div>', unsafe_allow_html=True)
     
     # with col2:
@@ -322,8 +322,8 @@ def calculate_ai_maturity_score(submission_data):
     # Definisi bobot untuk setiap dimensi
     weights = {
         'Dimensi 1': 0.25,  # Data & Infrastruktur - 25%
-        'Dimensi 2': 0.20,  # SDM & Kompetensi - 20%
-        'Dimensi 3': 0.25,  # Leadership & Strategi - 25%
+        'Dimensi 2': 0.25,  # Leadership & Strategi - 25%
+        'Dimensi 3': 0.20,  # SDM & Kompetensi - 20%
         'Dimensi 4': 0.20,  # Implementasi Use Case AI - 20%
         'Dimensi 5': 0.10   # Tata Kelola & Etika - 10%
     }
@@ -331,8 +331,8 @@ def calculate_ai_maturity_score(submission_data):
     # Nama dimensi yang lebih deskriptif
     dimension_names = {
         'Dimensi 1': 'Data & Infrastruktur',
-        'Dimensi 2': 'SDM & Kompetensi',
-        'Dimensi 3': 'Leadership & Strategi',
+        'Dimensi 2': 'Leadership & Strategi',
+        'Dimensi 3': 'SDM & Kompetensi',
         'Dimensi 4': 'Implementasi Use Case AI',
         'Dimensi 5': 'Tata Kelola & Etika'
     }
@@ -772,113 +772,84 @@ def main():
     # Main header
     st.markdown('<div class="main-header">Hasil Survei AI Maturity Assesment Rumah Sakit</div>', unsafe_allow_html=True)
     
-    # Display all submissions overview at the top
-    avg_submission, avg_scores, avg_maturity = display_all_submissions_overview(df)
-    
     # Check if submission_id is provided in URL
     submission_id_from_url = get_submission_id_from_url()
     
     # Get list of submission IDs
     submission_ids = df['Submission ID'].astype(str).tolist()
     
-    # Determine which submission to show
-    if submission_id_from_url and submission_id_from_url in submission_ids:
-        selected_submission = submission_id_from_url
-    else:
-        if submission_id_from_url:
-            st.error(f"❌ Submission ID '{submission_id_from_url}' tidak ditemukan!")
+    # If no query params, show only all submissions overview
+    if not submission_id_from_url:
+        # Display all submissions overview only
+        avg_submission, avg_scores, avg_maturity = display_all_submissions_overview(df)
         
-        # Create a selection interface at the top
+        # Add link to access individual submissions
         st.markdown("---")
-        st.markdown("## 🔍 Detail Submission Anda")
-        st.markdown("### Pilih Submission")
-        selected_submission = st.selectbox(
-            "Pilih Submission ID:",
-            options=submission_ids,
-            index=0,
-            format_func=lambda x: f"Submission {x}"
-        )
-    
-    # URL info and statistics
-    # col1, col2 = st.columns([2, 1])
-    # with col1:
-    #     current_url = f"http://localhost:8501"
-    #     example_url = f"{current_url}/?submission_id={selected_submission}"
-    
-    # Get the selected submission data
-    submission_data = df[df['Submission ID'].astype(str) == selected_submission].iloc[0]
-    
-    # Display submission details
-    display_submission_details(submission_data)
-    
-    # Create and display spider chart
-    st.markdown("---")
-    st.markdown('<div class="submission-header">Analisis Dimensi</div>', unsafe_allow_html=True)
-    
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        st.markdown("### Skor per Dimensi")
-        for dim in ['Dimensi 1', 'Dimensi 2', 'Dimensi 3', 'Dimensi 4', 'Dimensi 5']:
-            value = submission_data[dim]
-            # Create a simple progress bar visualization
-            progress = value / 15
-            st.metric(
-                label=dim.upper() + f": {dim_detail[dim]}",
-                value=f"{value}/15",
-                help=f"Skor: {value}"
-            )
-            st.progress(progress)
-            
-    with col2:
-        spider_fig = create_spider_chart(submission_data, selected_submission)
-        st.plotly_chart(spider_fig, use_container_width=True)
-    
-    
-    # AI Maturity Analysis
-    display_ai_maturity_analysis(submission_data)
-    
-    # Raw data section (expandable)
-    with st.expander("🔍 Lihat Data Survey Lengkap"):
-        # Filter out dimension columns for better readability
-        display_columns = [col for col in df.columns if not col.startswith('Dimensi') and col != 'Submission ID']
-        display_data = submission_data[display_columns].to_frame().T
-        st.dataframe(display_data, use_container_width=True)
-    
-    # All submissions overview
-    # st.markdown("---")
-    # st.markdown("### 📊 Ringkasan Semua Submission")
-    
-    # if st.checkbox("Tampilkan perbandingan semua submission"):
-    #     # Create comparison chart
-    #     fig_comparison = go.Figure()
+        st.markdown("### 🔗 Akses Hasil Individual")
+        st.info("💡 Untuk melihat hasil individual, gunakan URL: `?submission_id=<ID>` di akhir URL ini")
         
-    #     for idx, row in df.iterrows():
-    #         values = [row['Dimensi 1'], row['Dimensi 2'], row['Dimensi 3'], row['Dimensi 4'], row['Dimensi 5']]
-    #         values += values[:1]  # Close the chart
-    #         categories = ['Dimensi 1', 'Dimensi 2', 'Dimensi 3', 'Dimensi 4', 'Dimensi 5'] + ['Dimensi 1']
-            
-    #         fig_comparison.add_trace(go.Scatterpolar(
-    #             r=values,
-    #             theta=categories,
-    #             fill='toself',
-    #             name=f"{row['Nama Responden']} ({row['Submission ID']})",
-    #             opacity=0.7
-    #         ))
+        # Show available submission IDs
+        with st.expander("� Daftar Submission ID yang tersedia"):
+            for i, sub_id in enumerate(submission_ids):
+                col1, col2 = st.columns([1, 3])
+                with col1:
+                    st.code(sub_id)
+                with col2:
+                    # Get responder name for this submission
+                    responder_name = df[df['Submission ID'].astype(str) == sub_id]['Nama Responden'].iloc[0]
+                    st.write(f"**{responder_name}**")
+    
+    # If query params exist, show only individual submission
+    else:
+        # Validate submission ID
+        if submission_id_from_url not in submission_ids:
+            st.error(f"❌ Submission ID '{submission_id_from_url}' tidak ditemukan!")
+            st.markdown("### 📋 Submission ID yang tersedia:")
+            for sub_id in submission_ids:
+                st.code(sub_id)
+            return
         
-    #     fig_comparison.update_layout(
-    #         polar=dict(
-    #             radialaxis=dict(
-    #                 visible=True,
-    #                 range=[0, df[['Dimensi 1', 'Dimensi 2', 'Dimensi 3', 'Dimensi 4', 'Dimensi 5']].max().max() + 2]
-    #             )
-    #         ),
-    #         showlegend=True,
-    #         title="Perbandingan Semua Submission",
-    #         height=600
-    #     )
+        # Get the selected submission data
+        submission_data = df[df['Submission ID'].astype(str) == submission_id_from_url].iloc[0]
         
-    #     st.plotly_chart(fig_comparison, use_container_width=True)
+        # Add back to overview link
+        # st.markdown("### 🏠 [← Kembali ke Overview Semua Submission](?)")
+        
+        # Display submission details
+        display_submission_details(submission_data)
+        
+        # Create and display spider chart
+        st.markdown("---")
+        st.markdown('<div class="submission-header">Analisis Dimensi</div>', unsafe_allow_html=True)
+        
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            st.markdown("### Skor per Dimensi")
+            for dim in ['Dimensi 1', 'Dimensi 2', 'Dimensi 3', 'Dimensi 4', 'Dimensi 5']:
+                value = submission_data[dim]
+                # Create a simple progress bar visualization
+                progress = value / 15
+                st.metric(
+                    label=dim.upper() + f": {dim_detail[dim]}",
+                    value=f"{value}/15",
+                    help=f"Skor: {value}"
+                )
+                st.progress(progress)
+                
+        with col2:
+            spider_fig = create_spider_chart(submission_data, submission_id_from_url)
+            st.plotly_chart(spider_fig, use_container_width=True)
+        
+        # AI Maturity Analysis
+        display_ai_maturity_analysis(submission_data)
+        
+        # Raw data section (expandable)
+        with st.expander("🔍 Lihat Data Survey Lengkap"):
+            # Filter out dimension columns for better readability
+            display_columns = [col for col in df.columns if not col.startswith('Dimensi') and col != 'Submission ID']
+            display_data = submission_data[display_columns].to_frame().T
+            st.dataframe(display_data, use_container_width=True)
 
 if __name__ == "__main__":
     main()
