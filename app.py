@@ -130,7 +130,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def load_data():
-    """Memuat data dari Google Sheets dengan fallback ke file CSV lokal - selalu update real-time"""
+    """Memuat data dari Google Sheets - selalu update real-time"""
     try:
         # Google Sheets URL from Streamlit secrets
         try:
@@ -186,44 +186,9 @@ def load_data():
         return df
         
     except Exception as e:
-        st.warning(f"⚠️ Tidak dapat mengakses Google Sheets: {e}")
-        
-        # Fallback to local CSV file
-        try:
-            # Try new format file first
-            df = pd.read_csv('SURVEY AI MATURITY ASSESSMENT RUMAH SAKIT - Form responses.csv')
-            st.info("📁 Menggunakan file CSV lokal (format baru) sebagai fallback")
-            
-            # Apply same column renaming for local file
-            if 'Skor Dimensi 1' in df.columns:
-                df = df.rename(columns={
-                    'Skor Dimensi 1': 'Dimensi 1',
-                    'Skor Dimensi 2': 'Dimensi 2', 
-                    'Skor Dimensi 3': 'Dimensi 3',
-                    'Skor Dimensi 4': 'Dimensi 4',
-                    'Skor Dimensi 5': 'Dimensi 5',
-                    'Lokasi RS:': 'Lokasi Rumah Sakit',
-                    'Nama Responden:': 'Nama Responden',
-                    'Jabatan:': 'Jabatan',
-                    'Nama Rumah Sakit:': 'Nama Rumah Sakit',
-                    'Jumlah Tempat Tidur:': 'Jumlah Tempat Tidur'
-                })
-            
-            return df
-        except FileNotFoundError:
-            # Try old format file as secondary fallback
-            try:
-                df = pd.read_csv('Test Survey - Form responses.csv')
-                st.info("📁 Menggunakan file CSV lokal (format lama) sebagai fallback")
-                return df
-            except FileNotFoundError:
-                st.error("❌ File CSV lokal juga tidak ditemukan.")
-                st.info("💡 **Cara mengatasi masalah ini:**")
-                st.info("1. Pastikan Google Sheets dapat diakses publik:")
-                st.info("   - Buka sheet → File → Share → 'Anyone with the link can view'")
-                st.info("   - Atau: File → Publish to the web → Publish")
-                st.info("2. Atau letakkan file 'SURVEY AI MATURITY ASSESSMENT RUMAH SAKIT - Form responses.csv' di direktori aplikasi")
-                return None
+        # st.error(f"Data Tidak dapat memuat data: {e}")
+        st.info("**Data masih kosong**")
+        return None
 
 def create_spider_chart(dimensions_data, submission_id):
     """Membuat spider chart untuk 5 dimensi"""
