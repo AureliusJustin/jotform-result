@@ -202,7 +202,7 @@ def create_spider_chart(dimensions_data, submission_id):
         'LEADERSHIP & STRATEGI', 
         'DATA & INFRASTRUKTUR',
         'USE CASE AI',
-        'TATA KELOLA & ETIKA'
+        'TATA KELOLA & ETIKA',
         'SDM & KOMPETENSI',
     ]
     values = [
