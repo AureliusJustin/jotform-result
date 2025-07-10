@@ -859,7 +859,7 @@ def main():
         # Display all submissions overview only
         avg_submission, avg_scores, avg_maturity = display_all_submissions_overview(df)
         
-        # Add link to access individual submissions
+        # # Add link to access individual submissions
         # st.markdown("---")
         # st.markdown("### 🔗 Akses Hasil Individual")
         # st.info("💡 Untuk melihat hasil individual, gunakan URL: `?submission_id=<ID>` di akhir URL ini")
@@ -876,33 +876,33 @@ def main():
         #             st.write(f"**{responder_name}**")
         
         # Add dropdown to access individual submissions
-        # st.markdown("---")
-        # st.markdown("### 🔗 Akses Hasil Individual")
+        st.markdown("---")
+        st.markdown("### 🔗 Akses Hasil Individual")
         
-        # # Create options for dropdown with submission ID and responder name
-        # submission_options = ["Pilih submission individual"]
-        # submission_mapping = {}
+        # Create options for dropdown with submission ID and responder name
+        submission_options = ["Pilih submission individual"]
+        submission_mapping = {}
         
-        # for sub_id in submission_ids:
-        #     responder_name = df[df['Submission ID'].astype(str) == sub_id]['Nama Responden'].iloc[0]
-        #     option_text = f"{responder_name} (ID: {sub_id})"
-        #     submission_options.append(option_text)
-        #     submission_mapping[option_text] = sub_id
+        for sub_id in submission_ids:
+            responder_name = df[df['Submission ID'].astype(str) == sub_id]['Nama Responden'].iloc[0]
+            option_text = f"{responder_name} (ID: {sub_id})"
+            submission_options.append(option_text)
+            submission_mapping[option_text] = sub_id
         
-        # # Dropdown selection
-        # selected_option = st.selectbox(
-        #     "Pilih submission yang ingin dilihat:",
-        #     options=submission_options,
-        #     key="submission_selector"
-        # )
+        # Dropdown selection
+        selected_option = st.selectbox(
+            "Pilih submission yang ingin dilihat:",
+            options=submission_options,
+            key="submission_selector"
+        )
         
-        # # Navigate to selected submission
-        # if selected_option != "Pilih submission individual":
-        #     selected_submission_id = submission_mapping[selected_option]
-        #     query_params = st.experimental_get_query_params()
-        #     query_params['submission_id'] = selected_submission_id
-        #     st.experimental_set_query_params(**query_params)
-        #     st.rerun()
+        # Navigate to selected submission
+        if selected_option != "Pilih submission individual":
+            selected_submission_id = submission_mapping[selected_option]
+            query_params = st.experimental_get_query_params()
+            query_params['submission_id'] = selected_submission_id
+            st.experimental_set_query_params(**query_params)
+            st.rerun()
     
     # If query params exist, show only individual submission
     else:
