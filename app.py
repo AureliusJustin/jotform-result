@@ -7,11 +7,11 @@ import requests
 import io
 
 dim_detail = {
-    'Dimensi 1': 'DATA & INFRASTRUKTUR',
-    'Dimensi 2': 'LEADERSHIP & STRATEGI',
-    'Dimensi 3': 'SDM & KOMPETENSI',
-    'Dimensi 4': 'IMPLEMENTASI USE CASE AI',
-    'Dimensi 5': 'TATA KELOLA & ETIKA'
+    'Dimensi 1': 'LEADERSHIP & STRATEGI',
+    'Dimensi 2': 'DATA & INFRASTRUKTUR',
+    'Dimensi 3': 'USE CASE AI',
+    'Dimensi 4': 'TATA KELOLA & ETIKA',
+    'Dimensi 5': 'SDM & KOMPETENSI'
 }
 
 # Set page config
@@ -299,20 +299,20 @@ def calculate_ai_maturity_score(submission_data):
     
     # Definisi bobot untuk setiap dimensi
     weights = {
-        'Dimensi 1': 0.25,  # Data & Infrastruktur - 25%
-        'Dimensi 2': 0.25,  # Leadership & Strategi - 25%
-        'Dimensi 3': 0.20,  # SDM & Kompetensi - 20%
-        'Dimensi 4': 0.20,  # Implementasi Use Case AI - 20%
-        'Dimensi 5': 0.10   # Tata Kelola & Etika - 10%
+        'Dimensi 1': 0.25,  # Leadership & Strategi - 25%
+        'Dimensi 2': 0.25,  # Data & Infrastruktur - 25%
+        'Dimensi 3': 0.20,  # Use Case AI - 20%
+        'Dimensi 4': 0.10,   # Tata Kelola & Etika - 10%
+        'Dimensi 5': 0.20  # SDM & Kompetensi - 20%
     }
     
     # Nama dimensi yang lebih deskriptif
     dimension_names = {
-        'Dimensi 1': 'Data & Infrastruktur',
-        'Dimensi 2': 'Leadership & Strategi',
-        'Dimensi 3': 'SDM & Kompetensi',
-        'Dimensi 4': 'Implementasi Use Case AI',
-        'Dimensi 5': 'Tata Kelola & Etika'
+        'Dimensi 1': 'Leadership & Strategi',
+        'Dimensi 2': 'Data & Infrastruktur',
+        'Dimensi 3': 'Implementasi Use Case AI',
+        'Dimensi 4': 'Tata Kelola & Etika',
+        'Dimensi 5': 'SDM & Kompetensi'
     }
     
     # Hitung skor mentah total (dari 75 poin maksimal)
@@ -347,83 +347,83 @@ def get_ai_maturity_level(score):
     percentage = (score / 15) * 100
     scaled_score = (percentage / 100) * 60 + 15  # Scale to 15-75 range
     
-    if 15 <= scaled_score <= 27:
+    if percentage <= 35:
         return {
             'level': 1,
             'name': 'Awareness',
             'description': 'RS baru menyadari potensi AI',
             'characteristics': [
-                'Belum ada inisiatif konkret',
+                'Belum ada inisiatif konkret atau pilot project',
                 'Fokus: Education dan awareness building'
             ],
             'next_steps': [
-                'Edukasi manajemen dan staf mengenai potensi AI di layanan kesehatan',
-                'Selenggarakan workshop atau webinar pengenalan AI',
+                'Edukasi manajemen dan staf mengenai potensi AI di layanan kesehatan melalui workshop atau webinar',
+                'Lakukan benchmarking ke RS lain yang sudah menggunakan AI',
                 'Petakan area sederhana yang cocok untuk dijadikan pilot project'
             ],
             'color': '#ff6b6b'
         }
-    elif 28 <= scaled_score <= 39:
+    elif percentage <= 55:
         return {
             'level': 2,
             'name': 'Exploration',
-            'description': 'Pilot project terbatas dan eksperimen awal',
+            'description': 'Pilot project terbatas dan uji coba awal',
             'characteristics': [
-                'Investasi minimal untuk proof of concept',
+                'Investasi minimal untuk proof of concept (PoC)',
                 'Fokus: Learning dan experimentation'
             ],
             'next_steps': [
-                'Implementasikan 1–2 pilot project AI di area terbatas',
-                'Tinjau hasil dan dokumentasikan pembelajaran yang diperoleh',
-                'Susun strategi awal untuk pengembangan AI ke depan'
+                'Evaluasi hasil 1-2 pilot project dan dokumentasikan lessons learned',
+                'Buat business case untuk scaling solusi AI yang berhasil',
+                'Tingkatkan infrastruktur IT untuk mendukung implementasi yang lebih luas'
             ],
             'color': '#ffa726'
         }
-    elif 40 <= scaled_score <= 51:
+    elif percentage <= 75:
         return {
             'level': 3,
             'name': 'Implementation',
             'description': 'Beberapa solusi AI berjalan operasional',
             'characteristics': [
-                'Mulai ada governance dan standar',
+                'Mulai ada governance dan standar penggunaan AI',
                 'Fokus: Standardisasi dan integrasi sistem'
             ],
             'next_steps': [
-                'Standarkan proses AI yang sudah berjalan agar lebih stabil',
-                'Bentuk tim internal yang bertanggung jawab atas tata kelola AI',
-                'Perluas penerapan AI ke unit atau proses lainnya'
+                'Standardisasi proses implementasi AI di seluruh departemen',
+                'Integrasikan sistem AI dengan workflow yang sudah ada',
+                'Kembangkan policy dan SOP penggunaan AI yang lebih komprehensif'
             ],
             'color': '#66bb6a'
         }
-    elif 52 <= scaled_score <= 63:
+    elif percentage <= 90:
         return {
             'level': 4,
             'name': 'Scale-Up',
             'description': 'AI terintegrasi dalam operasional utama',
             'characteristics': [
-                'Ada strategy roadmap dan resource dedicated',
+                'Ada strategy roadmap dan resource yang dedicated untuk AI',
                 'Fokus: Optimisasi dan ekspansi'
             ],
             'next_steps': [
-                'Susun roadmap strategis untuk implementasi AI secara menyeluruh',
-                'Perkuat kompetensi SDM melalui pelatihan dan perekrutan khusus',
-                'Bangun sistem pemantauan berkala untuk mengevaluasi dampak AI'
+                'Optimalisasi ROI dari investasi AI yang sudah ada',
+                'Ekspansi ke use case AI yang lebih advanced dan kompleks',
+                'Bangun sistem pemantauan berkala untuk mengevaluasi impact dari AI'
             ],
             'color': '#42a5f5'
         }
-    elif 64 <= scaled_score <= 75:
+    elif percentage <= 100:
         return {
             'level': 5,
             'name': 'Transformation',
             'description': 'AI menjadi core competitive advantage',
             'characteristics': [
-                'Continuous innovation dan improvement',
+                'Continuous innovation dan improvement culture',
                 'Fokus: Leadership dan best practices'
             ],
             'next_steps': [
-                'Jadikan RS sebagai pusat unggulan (center of excellence) untuk AI',
-                'Bentuk unit riset atau laboratorium AI internal',
-                'Berkolaborasi dengan RS lain dan institusi riset untuk berbagi praktik terbaik'
+                'Menjadi center of excellence untuk AI implementation di healthcare',
+                'Kolaborasi dengan institusi penelitian untuk mengembangkan AI baru',
+                'Mentoring dan knowledge sharing dengan rumah sakit lain dalam ekosistem'
             ],
             'color': '#ab47bc'
         }
@@ -431,7 +431,7 @@ def get_ai_maturity_level(score):
         return {
             'level': 0,
             'name': 'Invalid',
-            'description': f'Skor tidak valid: {scaled_score:.2f} (dari weighted: {score:.2f})',
+            'description': f'Skor tidak valid: {percentage:.2f} (dari score: {score:.2f})',
             'characteristics': [f'Score range should be 15-75, got {scaled_score:.2f}'],
             'next_steps': 'Periksa kembali perhitungan skor',
             'color': '#757575'
@@ -530,11 +530,11 @@ def display_ai_maturity_analysis(submission_data):
     st.markdown("### 📚 REFERENSI LEVEL AI MATURITY")
     
     all_levels = [
-        (1, "Awareness", "15-27", "#ff6b6b"),
-        (2, "Exploration", "28-39", "#ffa726"),
-        (3, "Implementation", "40-51", "#66bb6a"),
-        (4, "Scale-Up", "52-63", "#42a5f5"),
-        (5, "Transformation", "64-75", "#ab47bc")
+        (1, "Awareness", "20-35", "#ff6b6b"),
+        (2, "Exploration", "36-55", "#ffa726"),
+        (3, "Implementation", "56-75", "#66bb6a"),
+        (4, "Scale-Up", "76-90", "#42a5f5"),
+        (5, "Transformation", "91-100", "#ab47bc")
     ]
     
     for level_num, level_name, score_range, color in all_levels:
@@ -543,8 +543,8 @@ def display_ai_maturity_analysis(submission_data):
         opacity = "1" if is_current else "0.7"
         
         # Convert raw score range (15-75) to weighted score range (0-15) for proper level calculation
-        raw_score_avg = (int(score_range.split('-')[0]) + int(score_range.split('-')[1])) / 2
-        weighted_score_avg = (raw_score_avg - 15) / 60 * 15  # Convert 15-75 range to 0-15 range
+        percentage_avg = (int(score_range.split('-')[0]) + int(score_range.split('-')[1])) / 2
+        weighted_score_avg = (percentage_avg) / 100 * 15  # Convert 15-75 range to 0-15 range
         level_info = get_ai_maturity_level(weighted_score_avg)
         
         st.markdown(f"""
@@ -557,7 +557,7 @@ def display_ai_maturity_analysis(submission_data):
             opacity: {opacity};
         ">
             <h4 style="color: {color}; margin: 0;">
-                Level {level_num}: {level_name} (Skor {score_range})
+                Level {level_num}: {level_name} (Skor {score_range}%)
             </h4>
             <p style="margin: 0.3rem 0;"><strong>{level_info['description']}</strong></p>
             <ul style="margin: 0.3rem 0; padding-left: 1.2rem;">
