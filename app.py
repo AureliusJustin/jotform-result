@@ -598,6 +598,7 @@ def display_all_submissions_overview(df):
     """Menampilkan overview semua submission dengan rata-rata"""
     
     avg_submission, dimension_averages = calculate_all_submissions_average(df)
+    avg_scores = calculate_ai_maturity_score(avg_submission)
     
     st.markdown("---")
     st.markdown('<div class="submission-header">Overview Semua Submission</div>', unsafe_allow_html=True)
@@ -613,16 +614,15 @@ def display_all_submissions_overview(df):
         )
     
     with col2:
-        overall_avg = sum([avg_submission[f'Dimensi {i}'] for i in range(1, 6)]) / 5
+        # overall_avg = sum([avg_submission[f'Dimensi {i}'] for i in range(1, 6)]) / 5
         st.metric(
             label="Rata-rata Skor",
-            value=f"{overall_avg:.1f}/15",
+            value=f"{avg_scores['weighted_total']:.2f}/15",
             help="Rata-rata skor dari semua dimensi"
         )
     
     with col3:
         # Calculate average AI maturity level
-        avg_scores = calculate_ai_maturity_score(avg_submission)
         avg_maturity = get_ai_maturity_level(avg_scores['weighted_total'])
         st.metric(
             label="Level Rata-rata",
