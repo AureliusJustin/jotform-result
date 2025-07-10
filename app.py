@@ -199,11 +199,11 @@ def create_spider_chart(dimensions_data, submission_id):
     """Membuat spider chart untuk 5 dimensi"""
     
     categories = [
-        'DATA & INFRASTRUKTUR',
         'LEADERSHIP & STRATEGI', 
-        'SDM & KOMPETENSI',
-        'IMPLEMENTASI USE CASE AI',
+        'DATA & INFRASTRUKTUR',
+        'USE CASE AI',
         'TATA KELOLA & ETIKA'
+        'SDM & KOMPETENSI',
     ]
     values = [
         dimensions_data['Dimensi 1'],
@@ -310,7 +310,7 @@ def calculate_ai_maturity_score(submission_data):
     dimension_names = {
         'Dimensi 1': 'Leadership & Strategi',
         'Dimensi 2': 'Data & Infrastruktur',
-        'Dimensi 3': 'Implementasi Use Case AI',
+        'Dimensi 3': 'Use Case AI',
         'Dimensi 4': 'Tata Kelola & Etika',
         'Dimensi 5': 'SDM & Kompetensi'
     }
