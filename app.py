@@ -181,14 +181,19 @@ def load_data():
             raise Exception(f"Kolom yang diperlukan tidak ditemukan: {', '.join(missing_columns)}")
         
         if df.empty:
-            raise Exception("Google Sheets kosong atau tidak memiliki data.")
+            # Return empty DataFrame instead of raising exception
+            return pd.DataFrame()
+        
+        # Check if DataFrame has data rows (not just headers)
+        if len(df) == 0:
+            return pd.DataFrame()
         
         return df
         
     except Exception as e:
         # st.error(f"Data Tidak dapat memuat data: {e}")
         st.info("**Data masih kosong**")
-        return None
+        return pd.DataFrame()  # Return empty DataFrame instead of None
 
 def create_spider_chart(dimensions_data, submission_id):
     """Membuat spider chart untuk 5 dimensi"""
@@ -730,13 +735,114 @@ def get_submission_id_from_url():
     except Exception as e:
         return None
 
+def display_empty_data_state():
+    """Menampilkan halaman ketika data masih kosong"""
+    st.markdown('<div class="submission-header">📊 Dashboard Belum Memiliki Data</div>', unsafe_allow_html=True)
+    
+    # Empty state illustration
+    col1, col2, col3 = st.columns([1, 2, 1])
+    
+    with col2:
+        st.markdown("""
+        <div style="
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            border-radius: 20px;
+            padding: 3rem;
+            text-align: center;
+            margin: 2rem 0;
+            border: 2px dashed #1976d2;
+        ">
+            <h1 style="font-size: 4rem; margin: 0; color: #1976d2;">📊</h1>
+            <h3 style="color: #1976d2; margin: 1rem 0;">Data Survey Belum Tersedia</h3>
+            <p style="color: #666; font-size: 1.1rem; margin: 0;">
+                Saat ini belum ada data survey yang masuk ke dalam sistem.<br>
+                Silakan tunggu hingga ada responden yang mengisi survey.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Information cards
+    st.markdown("### ℹ️ Informasi")
+    
+    info_col1, info_col2 = st.columns(2)
+    
+    with info_col1:
+        st.markdown("""
+        <div style="
+            background-color: #f8f9fa;
+            border-left: 4px solid #17a2b8;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        ">
+            <h4 style="color: #17a2b8; margin: 0 0 0.5rem 0;">🔄 Data Real-time</h4>
+            <p style="margin: 0; color: #555;">
+                Dashboard ini terhubung langsung dengan Google Sheets dan akan otomatis menampilkan data begitu ada submission baru.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with info_col2:
+        st.markdown("""
+        <div style="
+            background-color: #f8f9fa;
+            border-left: 4px solid #28a745;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+        ">
+            <h4 style="color: #28a745; margin: 0 0 0.5rem 0;">📈 Fitur Dashboard</h4>
+            <p style="margin: 0; color: #555;">
+                Setelah ada data, Anda dapat melihat analisis AI maturity, spider chart, dan statistik lengkap.
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # What to expect section
+    st.markdown("---")
+    st.markdown("### 🎯 Yang Akan Ditampilkan Setelah Ada Data")
+    
+    feature_col1, feature_col2, feature_col3 = st.columns(3)
+    
+    with feature_col1:
+        st.markdown("""
+        **📊 Overview Semua Submission**
+        - Total submission
+        - Rata-rata skor per dimensi
+        - Level AI maturity rata-rata
+        - Distribusi submission per level
+        """)
+    
+    with feature_col2:
+        st.markdown("""
+        **🕷️ Spider Chart**
+        - Visualisasi 5 dimensi AI maturity
+        - Perbandingan skor antar dimensi
+        - Grafik yang mudah dipahami
+        """)
+    
+    with feature_col3:
+        st.markdown("""
+        **🏆 Analisis Maturity**
+        - Level AI maturity (1-5)
+        - Karakteristik setiap level
+        - Rekomendasi langkah selanjutnya
+        """)
+    
+    # Refresh button
+    st.markdown("---")
+    col1, col2, col3 = st.columns([1, 1, 1])
+    
+    with col2:
+        if st.button("🔄 Refresh Data", use_container_width=True):
+            st.rerun()
+
 def main():
     # Load data
     df = load_data()
-    if df is None:
-        st.error("Tidak dapat memuat data. Silakan periksa koneksi internet dan coba lagi.")
-        if st.button("🔄 Coba Lagi"):
-            st.rerun()
+    if df is None or df.empty:
+        # Display empty state instead of error
+        display_empty_data_state()
         return
     
     # Main header
